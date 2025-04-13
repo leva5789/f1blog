@@ -11,15 +11,13 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
+import androidx.viewpager2.widget.ViewPager2;
 
+import com.google.android.material.tabs.TabLayout;
+import com.google.android.material.tabs.TabLayoutMediator;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.FirebaseFirestore;
-
-import java.util.ArrayList;
-import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -27,9 +25,9 @@ public class MainActivity extends AppCompatActivity {
     FirebaseFirestore db;
     TextView welcomeText;
     Button logoutButton;
-    RecyclerView driversRecyclerView;
     LinearLayout contentLayout;
-    DriversAdapter driversAdapter;
+    TabLayout tabLayout;
+    ViewPager2 viewPager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -48,8 +46,9 @@ public class MainActivity extends AppCompatActivity {
 
         welcomeText = findViewById(R.id.textViewWelcomeAnimation);
         logoutButton = findViewById(R.id.buttonLogout);
-        driversRecyclerView = findViewById(R.id.recyclerViewDrivers);
         contentLayout = findViewById(R.id.contentLayout);
+        tabLayout = findViewById(R.id.tabLayout);
+        viewPager = findViewById(R.id.viewPager);
 
         // Felhasználónév lekérése Firestore-ból
         String uid = currentUser.getUid();
@@ -70,8 +69,6 @@ public class MainActivity extends AppCompatActivity {
                 .addOnFailureListener(e -> {
                     Toast.makeText(this, "Hiba a felhasználónév lekérése közben: " + e.getMessage(), Toast.LENGTH_SHORT).show();
                     welcomeText.setText("Üdv, Névtelen!");
-
-                    // Animáció indítása hiba esetén is
                     startWelcomeAnimation();
                 });
 
@@ -81,10 +78,18 @@ public class MainActivity extends AppCompatActivity {
             finish();
         });
 
-        // RecyclerView beállítása
-        driversRecyclerView.setLayoutManager(new LinearLayoutManager(this));
-        driversAdapter = new DriversAdapter(getDriversList());
-        driversRecyclerView.setAdapter(driversAdapter);
+        // ViewPager és TabLayout beállítása
+        viewPager.setAdapter(new ViewPagerAdapter(this));
+        new TabLayoutMediator(tabLayout, viewPager, (tab, position) -> {
+            switch (position) {
+                case 0:
+                    tab.setText("Pilóták");
+                    break;
+                case 1:
+                    tab.setText("Csapatok");
+                    break;
+            }
+        }).attach();
     }
 
     private void startWelcomeAnimation() {
@@ -108,7 +113,7 @@ public class MainActivity extends AppCompatActivity {
             public void onAnimationRepeat(Animation animation) {}
         });
 
-        // Lista megjelenítése a fade-out vége után
+        // Tartalom megjelenítése a fade-out vége után
         fadeOut.setAnimationListener(new Animation.AnimationListener() {
             @Override
             public void onAnimationStart(Animation animation) {}
@@ -122,30 +127,5 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onAnimationRepeat(Animation animation) {}
         });
-    }
-
-    private List<Driver> getDriversList() {
-        List<Driver> drivers = new ArrayList<>();
-        drivers.add(new Driver("Lando Norris", "McLaren", 4, 4, 135));
-        drivers.add(new Driver("Oscar Piastri", "McLaren", 2, 1, 64));
-        drivers.add(new Driver("Lewis Hamilton", "Ferrari", 104, 104, 350));
-        drivers.add(new Driver("Charles Leclerc", "Ferrari", 7, 12, 149));
-        drivers.add(new Driver("Max Verstappen", "Red Bull", 63, 40, 211));
-        drivers.add(new Driver("Yuki Tsunoda", "Red Bull", 0, 0, 87));
-        drivers.add(new Driver("George Russell", "Mercedes", 3, 3, 127));
-        drivers.add(new Driver("Andrea Kimi Antonelli", "Mercedes", 0, 0, 0));
-        drivers.add(new Driver("Fernando Alonso", "Aston Martin", 32, 22, 400));
-        drivers.add(new Driver("Lance Stroll", "Aston Martin", 0, 0, 166));
-        drivers.add(new Driver("Pierre Gasly", "Alpine", 1, 0, 151));
-        drivers.add(new Driver("Jack Doohan", "Alpine", 0, 0, 0));
-        drivers.add(new Driver("Alex Albon", "Williams", 0, 0, 104));
-        drivers.add(new Driver("Carlos Sainz", "Williams", 3, 3, 211));
-        drivers.add(new Driver("Esteban Ocon", "Haas", 1, 0, 149));
-        drivers.add(new Driver("Oliver Bearman", "Haas", 0, 0, 2));
-        drivers.add(new Driver("Liam Lawson", "Racing Bulls", 0, 0, 11));
-        drivers.add(new Driver("Isack Hadjar", "Racing Bulls", 0, 0, 0));
-        drivers.add(new Driver("Nico Hülkenberg", "Sauber", 0, 1, 224));
-        drivers.add(new Driver("Gabriel Bortoleto", "Sauber", 0, 0, 0));
-        return drivers;
     }
 }
