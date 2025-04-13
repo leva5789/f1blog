@@ -15,7 +15,7 @@ import java.util.List;
 public class TeamsFragment extends Fragment {
 
     public TeamsFragment() {
-        // Üres konstruktor szükséges
+
     }
 
     @Override

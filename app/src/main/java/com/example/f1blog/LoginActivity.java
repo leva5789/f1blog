@@ -24,7 +24,6 @@ public class LoginActivity extends AppCompatActivity {
 
         mAuth = FirebaseAuth.getInstance();
 
-        // Ha már be van jelentkezve, ugorjon a főképernyőre
         FirebaseUser currentUser = mAuth.getCurrentUser();
         if (currentUser != null) {
             startActivity(new Intent(this, MainActivity.class));

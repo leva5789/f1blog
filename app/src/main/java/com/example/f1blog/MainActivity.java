@@ -51,11 +51,9 @@ public class MainActivity extends AppCompatActivity {
         contentLayout = findViewById(R.id.contentLayout);
         tabLayout = findViewById(R.id.tabLayout);
         viewPager = findViewById(R.id.viewPager);
-
-        // Kezdetben a contentLayout láthatatlan
         contentLayout.setVisibility(View.GONE);
 
-        // ViewPager inicializálása előre, de még nem látható
+
         viewPager.setAdapter(new ViewPagerAdapter(this));
         new TabLayoutMediator(tabLayout, viewPager, (tab, position) -> {
             switch (position) {
@@ -68,7 +66,6 @@ public class MainActivity extends AppCompatActivity {
             }
         }).attach();
 
-        // Felhasználónév lekérése Firestore-ból
         String uid = currentUser.getUid();
         db.collection("users").document(uid).get()
                 .addOnSuccessListener(documentSnapshot -> {
@@ -96,12 +93,11 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void startWelcomeAnimation() {
-        // Fade-in animáció
         Animation fadeIn = AnimationUtils.loadAnimation(this, R.anim.fade_in);
         welcomeText.setVisibility(View.VISIBLE);
         welcomeText.startAnimation(fadeIn);
 
-        // Késleltetett fade-out és tartalom megjelenítés
+
         new Handler(Looper.getMainLooper()).postDelayed(() -> {
             Animation fadeOut = AnimationUtils.loadAnimation(this, R.anim.fade_out);
             welcomeText.startAnimation(fadeOut);
@@ -118,6 +114,6 @@ public class MainActivity extends AppCompatActivity {
                 @Override
                 public void onAnimationRepeat(Animation animation) {}
             });
-        }, 1500); // 1.5 másodperc várakozás
+        }, 1500);
     }
 }

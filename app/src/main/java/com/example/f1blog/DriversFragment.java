@@ -15,7 +15,7 @@ import java.util.List;
 public class DriversFragment extends Fragment {
 
     public DriversFragment() {
-        // Üres konstruktor szükséges
+
     }
 
     @Override

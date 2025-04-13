@@ -43,7 +43,6 @@ public class RegisterActivity extends AppCompatActivity {
 
             mAuth.createUserWithEmailAndPassword(email, password)
                     .addOnSuccessListener(authResult -> {
-                        // Felhasználónév és email mentése Firestore-ba
                         String uid = authResult.getUser().getUid();
                         db.collection("users").document(uid).set(new User(username, email))
                                 .addOnSuccessListener(aVoid -> {
@@ -66,7 +65,6 @@ public class RegisterActivity extends AppCompatActivity {
         });
     }
 
-    // Segédosztály a Firestore-hoz
     private static class User {
         private String username;
         private String email;
