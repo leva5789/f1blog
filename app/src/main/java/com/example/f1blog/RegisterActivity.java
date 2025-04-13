@@ -43,16 +43,16 @@ public class RegisterActivity extends AppCompatActivity {
 
             mAuth.createUserWithEmailAndPassword(email, password)
                     .addOnSuccessListener(authResult -> {
-                        // Felhasználónév mentése Firestore-ba
+                        // Felhasználónév és email mentése Firestore-ba
                         String uid = authResult.getUser().getUid();
-                        db.collection("users").document(uid).set(new User(username))
+                        db.collection("users").document(uid).set(new User(username, email))
                                 .addOnSuccessListener(aVoid -> {
                                     Toast.makeText(this, "Sikeres regisztráció!", Toast.LENGTH_SHORT).show();
                                     startActivity(new Intent(RegisterActivity.this, MainActivity.class));
                                     finish();
                                 })
                                 .addOnFailureListener(e -> {
-                                    Toast.makeText(this, "Hiba a felhasználónév mentése közben: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                                    Toast.makeText(this, "Hiba az adatok mentése közben: " + e.getMessage(), Toast.LENGTH_SHORT).show();
                                 });
                     })
                     .addOnFailureListener(e -> {
@@ -69,9 +69,11 @@ public class RegisterActivity extends AppCompatActivity {
     // Segédosztály a Firestore-hoz
     private static class User {
         private String username;
+        private String email;
 
-        public User(String username) {
+        public User(String username, String email) {
             this.username = username;
+            this.email = email;
         }
 
         public String getUsername() {
@@ -80,6 +82,14 @@ public class RegisterActivity extends AppCompatActivity {
 
         public void setUsername(String username) {
             this.username = username;
+        }
+
+        public String getEmail() {
+            return email;
+        }
+
+        public void setEmail(String email) {
+            this.email = email;
         }
     }
 }
