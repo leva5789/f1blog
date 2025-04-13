@@ -1,20 +1,18 @@
 package com.example.f1blog;
 
-import java.io.Serializable;
-
-public class Driver implements Serializable {
+public class Driver {
     private String name;
     private String team;
     private int wins;
     private int poles;
-    private int races;
+    private int points;
 
-    public Driver(String name, String team, int wins, int poles, int races) {
+    public Driver(String name, String team, int wins, int poles, int points) {
         this.name = name;
         this.team = team;
         this.wins = wins;
         this.poles = poles;
-        this.races = races;
+        this.points = points;
     }
 
     public String getName() {
@@ -33,7 +31,7 @@ public class Driver implements Serializable {
         return poles;
     }
 
-    public int getRaces() {
-        return races;
+    public int getPoints() {
+        return points;
     }
 }

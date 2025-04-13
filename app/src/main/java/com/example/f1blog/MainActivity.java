@@ -2,6 +2,8 @@ package com.example.f1blog;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.view.View;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
@@ -50,6 +52,22 @@ public class MainActivity extends AppCompatActivity {
         tabLayout = findViewById(R.id.tabLayout);
         viewPager = findViewById(R.id.viewPager);
 
+        // Kezdetben a contentLayout láthatatlan
+        contentLayout.setVisibility(View.GONE);
+
+        // ViewPager inicializálása előre, de még nem látható
+        viewPager.setAdapter(new ViewPagerAdapter(this));
+        new TabLayoutMediator(tabLayout, viewPager, (tab, position) -> {
+            switch (position) {
+                case 0:
+                    tab.setText("Pilóták");
+                    break;
+                case 1:
+                    tab.setText("Csapatok");
+                    break;
+            }
+        }).attach();
+
         // Felhasználónév lekérése Firestore-ból
         String uid = currentUser.getUid();
         db.collection("users").document(uid).get()
@@ -62,8 +80,6 @@ public class MainActivity extends AppCompatActivity {
                         }
                     }
                     welcomeText.setText("Üdv, " + username + "!");
-
-                    // Animáció indítása
                     startWelcomeAnimation();
                 })
                 .addOnFailureListener(e -> {
@@ -77,19 +93,6 @@ public class MainActivity extends AppCompatActivity {
             startActivity(new Intent(this, LoginActivity.class));
             finish();
         });
-
-        // ViewPager és TabLayout beállítása
-        viewPager.setAdapter(new ViewPagerAdapter(this));
-        new TabLayoutMediator(tabLayout, viewPager, (tab, position) -> {
-            switch (position) {
-                case 0:
-                    tab.setText("Pilóták");
-                    break;
-                case 1:
-                    tab.setText("Csapatok");
-                    break;
-            }
-        }).attach();
     }
 
     private void startWelcomeAnimation() {
@@ -98,34 +101,23 @@ public class MainActivity extends AppCompatActivity {
         welcomeText.setVisibility(View.VISIBLE);
         welcomeText.startAnimation(fadeIn);
 
-        // Fade-out animáció a fade-in vége után
-        Animation fadeOut = AnimationUtils.loadAnimation(this, R.anim.fade_out);
-        fadeIn.setAnimationListener(new Animation.AnimationListener() {
-            @Override
-            public void onAnimationStart(Animation animation) {}
+        // Késleltetett fade-out és tartalom megjelenítés
+        new Handler(Looper.getMainLooper()).postDelayed(() -> {
+            Animation fadeOut = AnimationUtils.loadAnimation(this, R.anim.fade_out);
+            welcomeText.startAnimation(fadeOut);
+            fadeOut.setAnimationListener(new Animation.AnimationListener() {
+                @Override
+                public void onAnimationStart(Animation animation) {}
 
-            @Override
-            public void onAnimationEnd(Animation animation) {
-                welcomeText.startAnimation(fadeOut);
-            }
+                @Override
+                public void onAnimationEnd(Animation animation) {
+                    welcomeText.setVisibility(View.GONE);
+                    contentLayout.setVisibility(View.VISIBLE);
+                }
 
-            @Override
-            public void onAnimationRepeat(Animation animation) {}
-        });
-
-        // Tartalom megjelenítése a fade-out vége után
-        fadeOut.setAnimationListener(new Animation.AnimationListener() {
-            @Override
-            public void onAnimationStart(Animation animation) {}
-
-            @Override
-            public void onAnimationEnd(Animation animation) {
-                welcomeText.setVisibility(View.GONE);
-                contentLayout.setVisibility(View.VISIBLE);
-            }
-
-            @Override
-            public void onAnimationRepeat(Animation animation) {}
-        });
+                @Override
+                public void onAnimationRepeat(Animation animation) {}
+            });
+        }, 1500); // 1.5 másodperc várakozás
     }
 }

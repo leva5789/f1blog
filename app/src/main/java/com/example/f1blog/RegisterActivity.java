@@ -4,80 +4,82 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.TextView;
 import android.widget.Toast;
-
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.Toolbar;
-
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.FirebaseFirestore;
 
-import java.util.HashMap;
-
 public class RegisterActivity extends AppCompatActivity {
-
-    EditText emailInput, passwordInput, usernameInput;
-    Button registerButton;
-    Toolbar toolbar;
-    FirebaseAuth mAuth;
-    FirebaseFirestore db;
+    private EditText editTextUsername, editTextEmail, editTextPassword;
+    private Button buttonRegister;
+    private TextView loginLink;
+    private FirebaseAuth mAuth;
+    private FirebaseFirestore db;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_register);
 
-        emailInput = findViewById(R.id.editTextEmail);
-        passwordInput = findViewById(R.id.editTextPassword);
-        usernameInput = findViewById(R.id.editTextUsername);
-        registerButton = findViewById(R.id.buttonRegister);
-        toolbar = findViewById(R.id.toolbar);
-
-        // Toolbar beállítása
-        setSupportActionBar(toolbar);
-        if (getSupportActionBar() != null) {
-            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-            getSupportActionBar().setTitle("Regisztráció");
-        }
-
         mAuth = FirebaseAuth.getInstance();
         db = FirebaseFirestore.getInstance();
 
-        registerButton.setOnClickListener(v -> {
-            String email = emailInput.getText().toString().trim();
-            String password = passwordInput.getText().toString().trim();
-            String username = usernameInput.getText().toString().trim();
+        editTextUsername = findViewById(R.id.editTextUsername);
+        editTextEmail = findViewById(R.id.editTextEmail);
+        editTextPassword = findViewById(R.id.editTextPassword);
+        buttonRegister = findViewById(R.id.buttonRegister);
+        loginLink = findViewById(R.id.textViewLogin);
 
-            if (email.isEmpty() || password.isEmpty() || username.isEmpty()) {
-                Toast.makeText(this, "Minden mező kötelező", Toast.LENGTH_SHORT).show();
+        buttonRegister.setOnClickListener(v -> {
+            String username = editTextUsername.getText().toString().trim();
+            String email = editTextEmail.getText().toString().trim();
+            String password = editTextPassword.getText().toString().trim();
+
+            if (username.isEmpty() || email.isEmpty() || password.isEmpty()) {
+                Toast.makeText(this, "Kérlek, tölts ki minden mezőt!", Toast.LENGTH_SHORT).show();
                 return;
             }
 
             mAuth.createUserWithEmailAndPassword(email, password)
                     .addOnSuccessListener(authResult -> {
+                        // Felhasználónév mentése Firestore-ba
                         String uid = authResult.getUser().getUid();
-
-                        HashMap<String, Object> userData = new HashMap<>();
-                        userData.put("email", email);
-                        userData.put("username", username);
-
-                        db.collection("users").document(uid)
-                                .set(userData)
+                        db.collection("users").document(uid).set(new User(username))
                                 .addOnSuccessListener(aVoid -> {
                                     Toast.makeText(this, "Sikeres regisztráció!", Toast.LENGTH_SHORT).show();
-                                    startActivity(new Intent(this, MainActivity.class));
+                                    startActivity(new Intent(RegisterActivity.this, MainActivity.class));
                                     finish();
+                                })
+                                .addOnFailureListener(e -> {
+                                    Toast.makeText(this, "Hiba a felhasználónév mentése közben: " + e.getMessage(), Toast.LENGTH_SHORT).show();
                                 });
                     })
                     .addOnFailureListener(e -> {
-                        Toast.makeText(this, "Hiba: " + e.getMessage(), Toast.LENGTH_LONG).show();
+                        Toast.makeText(this, "Regisztráció sikertelen: " + e.getMessage(), Toast.LENGTH_SHORT).show();
                     });
         });
 
-        // Toolbar vissza gomb kezelése
-        toolbar.setNavigationOnClickListener(v -> {
+        loginLink.setOnClickListener(v -> {
             startActivity(new Intent(RegisterActivity.this, LoginActivity.class));
             finish();
         });
+    }
+
+    // Segédosztály a Firestore-hoz
+    private static class User {
+        private String username;
+
+        public User(String username) {
+            this.username = username;
+        }
+
+        public String getUsername() {
+            return username;
+        }
+
+        public void setUsername(String username) {
+            this.username = username;
+        }
     }
 }

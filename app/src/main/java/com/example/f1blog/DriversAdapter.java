@@ -1,18 +1,18 @@
 package com.example.f1blog;
 
 import android.content.Intent;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
-
 import androidx.annotation.NonNull;
+import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.RecyclerView;
-
 import java.util.List;
 
 public class DriversAdapter extends RecyclerView.Adapter<DriversAdapter.DriverViewHolder> {
-
+    private static final String TAG = "DriversAdapter";
     private List<Driver> drivers;
 
     public DriversAdapter(List<Driver> drivers) {
@@ -22,21 +22,37 @@ public class DriversAdapter extends RecyclerView.Adapter<DriversAdapter.DriverVi
     @NonNull
     @Override
     public DriverViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(parent.getContext())
-                .inflate(R.layout.item_driver, parent, false);
+        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_driver, parent, false);
         return new DriverViewHolder(view);
     }
 
     @Override
     public void onBindViewHolder(@NonNull DriverViewHolder holder, int position) {
         Driver driver = drivers.get(position);
-        holder.nameTextView.setText(driver.getName());
-        holder.teamTextView.setText(driver.getTeam());
+        if (holder.nameTextView != null) {
+            holder.nameTextView.setText(driver.getName());
+        } else {
+            Log.e(TAG, "nameTextView is null");
+        }
+        if (holder.teamTextView != null) {
+            holder.teamTextView.setText(driver.getTeam());
+        } else {
+            Log.e(TAG, "teamTextView is null");
+        }
+        if (holder.colorBar != null) {
+            int colorRes = TeamColorUtils.getTeamColor(driver.getTeam());
+            holder.colorBar.setBackgroundColor(ContextCompat.getColor(holder.itemView.getContext(), colorRes));
+        } else {
+            Log.e(TAG, "colorBar is null");
+        }
 
-        // Kattintás kezelése
         holder.itemView.setOnClickListener(v -> {
             Intent intent = new Intent(holder.itemView.getContext(), DriverDetailsActivity.class);
-            intent.putExtra("driver", driver);
+            intent.putExtra("driverName", driver.getName());
+            intent.putExtra("team", driver.getTeam());
+            intent.putExtra("wins", driver.getWins());
+            intent.putExtra("poles", driver.getPoles());
+            intent.putExtra("points", driver.getPoints());
             holder.itemView.getContext().startActivity(intent);
         });
     }
@@ -48,11 +64,22 @@ public class DriversAdapter extends RecyclerView.Adapter<DriversAdapter.DriverVi
 
     static class DriverViewHolder extends RecyclerView.ViewHolder {
         TextView nameTextView, teamTextView;
+        View colorBar;
 
-        DriverViewHolder(View itemView) {
+        public DriverViewHolder(@NonNull View itemView) {
             super(itemView);
             nameTextView = itemView.findViewById(R.id.textViewDriverName);
-            teamTextView = itemView.findViewById(R.id.textViewTeamName);
+            teamTextView = itemView.findViewById(R.id.textViewTeam);
+            colorBar = itemView.findViewById(R.id.teamColorBar);
+            if (nameTextView == null) {
+                Log.e(TAG, "textViewDriverName not found in item_driver.xml");
+            }
+            if (teamTextView == null) {
+                Log.e(TAG, "textViewTeam not found in item_driver.xml");
+            }
+            if (colorBar == null) {
+                Log.e(TAG, "teamColorBar not found in item_driver.xml");
+            }
         }
     }
 }

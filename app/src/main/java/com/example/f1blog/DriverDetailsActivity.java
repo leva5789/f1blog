@@ -1,47 +1,40 @@
 package com.example.f1blog;
 
+import android.content.Intent;
 import android.os.Bundle;
+import android.widget.Button;
 import android.widget.TextView;
-
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.Toolbar;
 
 public class DriverDetailsActivity extends AppCompatActivity {
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_driver_details);
 
-        Toolbar toolbar = findViewById(R.id.toolbar);
-        TextView nameTextView = findViewById(R.id.textViewDriverName);
+        // TextView-ek inicializálása
+        TextView driverNameTextView = findViewById(R.id.textViewDriverName);
         TextView teamTextView = findViewById(R.id.textViewTeam);
         TextView winsTextView = findViewById(R.id.textViewWins);
         TextView polesTextView = findViewById(R.id.textViewPoles);
-        TextView racesTextView = findViewById(R.id.textViewRaces);
+        TextView pointsTextView = findViewById(R.id.textViewPoints);
+        Button backButton = findViewById(R.id.buttonBack);
 
-        // Toolbar beállítása
-        setSupportActionBar(toolbar);
-        if (getSupportActionBar() != null) {
-            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-            getSupportActionBar().setTitle("Versenyző adatai");
-        }
+        // Adatok lekérése (pl. Intent-ből)
+        String driverName = getIntent().getStringExtra("driverName");
+        String team = getIntent().getStringExtra("team");
+        int wins = getIntent().getIntExtra("wins", 0);
+        int poles = getIntent().getIntExtra("poles", 0);
+        int points = getIntent().getIntExtra("points", 0);
 
-        // Versenyző adatainak lekérése az Intent-ből
-        Driver driver = (Driver) getIntent().getSerializableExtra("driver");
+        // Adatok beállítása
+        driverNameTextView.setText(driverName);
+        teamTextView.setText("Csapat: " + team);
+        winsTextView.setText("Győzelmek: " + wins);
+        polesTextView.setText("Pole pozíciók: " + poles);
+        pointsTextView.setText("Pontok: " + points);
 
-        if (driver != null) {
-            nameTextView.setText(driver.getName());
-            teamTextView.setText("Csapat: " + driver.getTeam());
-            winsTextView.setText("Futamgyőzelmek: " + driver.getWins());
-            polesTextView.setText("Pole pozíciók: " + driver.getPoles());
-            racesTextView.setText("Versenyek száma: " + driver.getRaces());
-            if (getSupportActionBar() != null) {
-                getSupportActionBar().setTitle(driver.getName());
-            }
-        }
-
-        // Toolbar vissza nyíl kezelése
-        toolbar.setNavigationOnClickListener(v -> finish());
+        // Vissza gomb
+        backButton.setOnClickListener(v -> finish());
     }
 }

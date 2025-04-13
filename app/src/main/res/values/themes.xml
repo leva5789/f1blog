@@ -1,9 +1,23 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
-    <!-- Base application theme. -->
-    <style name="Base.Theme.F1blog" parent="Theme.Material3.DayNight.NoActionBar">
-        <!-- Customize your light theme here. -->
-        <!-- <item name="colorPrimary">@color/my_light_primary</item> -->
+    <!-- Base application theme -->
+    <style name="Theme.F1Blog" parent="Theme.MaterialComponents.DayNight.NoActionBar">
+        <!-- Primary brand color -->
+        <item name="colorPrimary">@color/race_red</item>
+        <item name="colorPrimaryVariant">@color/race_red</item>
+        <item name="colorOnPrimary">@color/white</item>
+        <!-- Secondary brand color -->
+        <item name="colorSecondary">@color/race_red</item>
+        <item name="colorSecondaryVariant">@color/race_red</item>
+        <item name="colorOnSecondary">@color/white</item>
+        <!-- Background and text -->
+        <item name="android:background">@color/black_background</item>
+        <item name="android:textColor">@color/white</item>
+        <item name="android:textColorPrimary">@color/white</item>
+        <item name="android:textColorSecondary">@color/gray</item>
+        <!-- Status bar -->
+        <item name="android:statusBarColor">@color/black_background</item>
+        <item name="android:windowLightStatusBar">false</item>
+        <!-- Navigation bar -->
+        <item name="android:navigationBarColor">@color/black_background</item>
     </style>
-
-    <style name="Theme.F1blog" parent="Base.Theme.F1blog" />
 </resources>

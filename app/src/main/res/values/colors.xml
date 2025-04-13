@@ -1,5 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="black">#FF000000</color>
-    <color name="white">#FFFFFFFF</color>
+    <color name="black_background">#212121</color>
+    <color name="white">#FFFFFF</color>
+    <color name="gray">#B0B0B0</color>
+    <color name="race_red">#FF0000</color>
+    <color name="mercedes">#27F4D2</color>
+    <color name="red_bull">#3671C6</color>
+    <color name="ferrari">#E80020</color>
+    <color name="mclaren">#FF8000</color>
+    <color name="alpine">#00A1E8</color>
+    <color name="racing_bulls">#6692FF</color>
+    <color name="aston_martin">#229971</color>
+    <color name="williams">#1868DB</color>
+    <color name="kick_sauber">#52E252</color>
+    <color name="haas">#B6BABD</color>
+    <color name="default_team_color">#757575</color> <!-- Alapértelmezett szín ismeretlen csapatokhoz -->
 </resources>
