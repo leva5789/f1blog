@@ -17,6 +17,19 @@
         android:gravity="center_vertical"
         android:background="?android:attr/selectableItemBackground">
 
+        <!-- Helyezés -->
+        <TextView
+            android:id="@+id/textViewPosition"
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            android:background="@drawable/position_background"
+            android:gravity="center"
+            android:textColor="@android:color/black"
+            android:textSize="14sp"
+            android:textStyle="bold"
+            android:layout_marginEnd="8dp" />
+
+        <!-- Tartalom -->
         <LinearLayout
             android:layout_width="0dp"
             android:layout_height="wrap_content"
@@ -51,7 +64,7 @@
             android:layout_width="24dp"
             android:layout_height="24dp"
             android:src="@android:drawable/ic_menu_more"
-            android:contentDescription="További részletek"
+            android:contentDescription="Részletek a pilótáról"
             android:tint="@color/race_red" />
 
     </LinearLayout>

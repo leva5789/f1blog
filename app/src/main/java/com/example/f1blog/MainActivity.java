@@ -2,34 +2,24 @@ package com.example.f1blog;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Looper;
 import android.view.View;
-import android.view.animation.Animation;
-import android.view.animation.AnimationUtils;
+import android.view.animation.AlphaAnimation;
 import android.widget.Button;
-import android.widget.LinearLayout;
 import android.widget.TextView;
-import android.widget.Toast;
-
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.viewpager2.widget.ViewPager2;
-
 import com.google.android.material.tabs.TabLayout;
 import com.google.android.material.tabs.TabLayoutMediator;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.firestore.FirebaseFirestore;
+import androidx.fragment.app.Fragment;
+import java.util.ArrayList;
+import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
 
-    FirebaseAuth mAuth;
-    FirebaseFirestore db;
-    TextView welcomeText;
-    Button logoutButton;
-    LinearLayout contentLayout;
-    TabLayout tabLayout;
-    ViewPager2 viewPager;
+    private TextView textViewWelcomeAnimation;
+    private View contentLayout;
+    private FirebaseAuth mAuth;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -37,83 +27,77 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         mAuth = FirebaseAuth.getInstance();
-        db = FirebaseFirestore.getInstance();
-        FirebaseUser currentUser = mAuth.getCurrentUser();
 
-        if (currentUser == null) {
+        // Bejelentkezési ellenőrzés
+        if (mAuth.getCurrentUser() == null) {
             startActivity(new Intent(this, LoginActivity.class));
             finish();
             return;
         }
 
-        welcomeText = findViewById(R.id.textViewWelcomeAnimation);
-        logoutButton = findViewById(R.id.buttonLogout);
+        textViewWelcomeAnimation = findViewById(R.id.textViewWelcomeAnimation);
         contentLayout = findViewById(R.id.contentLayout);
-        tabLayout = findViewById(R.id.tabLayout);
-        viewPager = findViewById(R.id.viewPager);
-        contentLayout.setVisibility(View.GONE);
 
-
-        viewPager.setAdapter(new ViewPagerAdapter(this));
-        new TabLayoutMediator(tabLayout, viewPager, (tab, position) -> {
-            switch (position) {
-                case 0:
-                    tab.setText("Pilóták");
-                    break;
-                case 1:
-                    tab.setText("Csapatok");
-                    break;
+        // Üdvözlő animáció
+        String username = getIntent().getStringExtra("username");
+        if (username != null && !username.isEmpty()) {
+            textViewWelcomeAnimation.setText("Üdv, " + username + "!");
+        } else {
+            // Ha nincs username, próbáljuk meg az emailből kinyerni
+            String email = mAuth.getCurrentUser().getEmail();
+            if (email != null && !email.isEmpty()) {
+                username = email.split("@")[0];
+                textViewWelcomeAnimation.setText("Üdv, " + username + "!");
+            } else {
+                textViewWelcomeAnimation.setText("Üdv!");
             }
-        }).attach();
+        }
 
-        String uid = currentUser.getUid();
-        db.collection("users").document(uid).get()
-                .addOnSuccessListener(documentSnapshot -> {
-                    String username = "Névtelen";
-                    if (documentSnapshot.exists()) {
-                        String storedUsername = documentSnapshot.getString("username");
-                        if (storedUsername != null && !storedUsername.isEmpty()) {
-                            username = storedUsername;
-                        }
-                    }
-                    welcomeText.setText("Üdv, " + username + "!");
-                    startWelcomeAnimation();
-                })
-                .addOnFailureListener(e -> {
-                    Toast.makeText(this, "Hiba a felhasználónév lekérése közben: " + e.getMessage(), Toast.LENGTH_SHORT).show();
-                    welcomeText.setText("Üdv, Névtelen!");
-                    startWelcomeAnimation();
-                });
+        AlphaAnimation fadeIn = new AlphaAnimation(0.0f, 1.0f);
+        fadeIn.setDuration(2000);
+        fadeIn.setFillAfter(true);
+        textViewWelcomeAnimation.setVisibility(View.VISIBLE);
+        textViewWelcomeAnimation.startAnimation(fadeIn);
 
-        logoutButton.setOnClickListener(v -> {
+        // Fő tartalom megjelenítése az animáció után
+        fadeIn.setAnimationListener(new AlphaAnimation.AnimationListener() {
+            @Override
+            public void onAnimationStart(android.view.animation.Animation animation) {}
+
+            @Override
+            public void onAnimationEnd(android.view.animation.Animation animation) {
+                contentLayout.setVisibility(View.VISIBLE);
+            }
+
+            @Override
+            public void onAnimationRepeat(android.view.animation.Animation animation) {}
+        });
+
+        // TabLayout és ViewPager2 beállítása
+        TabLayout tabLayout = findViewById(R.id.tabLayout);
+        ViewPager2 viewPager = findViewById(R.id.viewPager);
+
+        List<Fragment> fragments = new ArrayList<>();
+        fragments.add(new DriversFragment());
+        fragments.add(new TeamsFragment());
+        fragments.add(new NewsFragment());
+
+        List<String> tabTitles = new ArrayList<>();
+        tabTitles.add("Pilóták");
+        tabTitles.add("Csapatok");
+        tabTitles.add("Hírek");
+
+        ViewPagerAdapter adapter = new ViewPagerAdapter(this, fragments);
+        viewPager.setAdapter(adapter);
+
+        new TabLayoutMediator(tabLayout, viewPager, (tab, position) -> tab.setText(tabTitles.get(position))).attach();
+
+        // Kijelentkezés gomb
+        Button buttonLogout = findViewById(R.id.buttonLogout);
+        buttonLogout.setOnClickListener(v -> {
             mAuth.signOut();
             startActivity(new Intent(this, LoginActivity.class));
             finish();
         });
-    }
-
-    private void startWelcomeAnimation() {
-        Animation fadeIn = AnimationUtils.loadAnimation(this, R.anim.fade_in);
-        welcomeText.setVisibility(View.VISIBLE);
-        welcomeText.startAnimation(fadeIn);
-
-
-        new Handler(Looper.getMainLooper()).postDelayed(() -> {
-            Animation fadeOut = AnimationUtils.loadAnimation(this, R.anim.fade_out);
-            welcomeText.startAnimation(fadeOut);
-            fadeOut.setAnimationListener(new Animation.AnimationListener() {
-                @Override
-                public void onAnimationStart(Animation animation) {}
-
-                @Override
-                public void onAnimationEnd(Animation animation) {
-                    welcomeText.setVisibility(View.GONE);
-                    contentLayout.setVisibility(View.VISIBLE);
-                }
-
-                @Override
-                public void onAnimationRepeat(Animation animation) {}
-            });
-        }, 1500);
     }
 }

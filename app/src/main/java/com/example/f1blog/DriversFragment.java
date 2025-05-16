@@ -31,26 +31,30 @@ public class DriversFragment extends Fragment {
 
     private List<Driver> getDriversList() {
         List<Driver> drivers = new ArrayList<>();
-        drivers.add(new Driver("Lando Norris", "McLaren", 4, 4, 62));
-        drivers.add(new Driver("Oscar Piastri", "McLaren", 4, 1, 49));
-        drivers.add(new Driver("Lewis Hamilton", "Ferrari", 104, 104, 15));
-        drivers.add(new Driver("Charles Leclerc", "Ferrari", 7, 12, 20));
-        drivers.add(new Driver("Max Verstappen", "Red Bull", 63, 40, 61));
-        drivers.add(new Driver("Yuki Tsunoda", "Red Bull", 0, 0, 3));
-        drivers.add(new Driver("George Russell", "Mercedes", 3, 3, 45));
+        drivers.add(new Driver("Lando Norris", "McLaren", 4, 4, 77));
+        drivers.add(new Driver("Oscar Piastri", "McLaren", 4, 1, 74));
+        drivers.add(new Driver("Lewis Hamilton", "Ferrari", 104, 104, 25));
+        drivers.add(new Driver("Charles Leclerc", "Ferrari", 7, 12, 32));
+        drivers.add(new Driver("Max Verstappen", "Red Bull", 63, 40, 69));
+        drivers.add(new Driver("Yuki Tsunoda", "Red Bull", 0, 0, 5));
+        drivers.add(new Driver("George Russell", "Mercedes", 3, 3, 63));
         drivers.add(new Driver("Andrea Kimi Antonelli", "Mercedes", 0, 0, 30));
         drivers.add(new Driver("Fernando Alonso", "Aston Martin", 32, 22, 0));
         drivers.add(new Driver("Lance Stroll", "Aston Martin", 0, 0, 10));
-        drivers.add(new Driver("Pierre Gasly", "Alpine", 1, 0, 0));
+        drivers.add(new Driver("Pierre Gasly", "Alpine", 1, 0, 6));
         drivers.add(new Driver("Jack Doohan", "Alpine", 0, 0, 0));
         drivers.add(new Driver("Alex Albon", "Williams", 0, 0, 18));
         drivers.add(new Driver("Carlos Sainz", "Williams", 3, 3, 1));
-        drivers.add(new Driver("Esteban Ocon", "Haas", 1, 0, 10));
-        drivers.add(new Driver("Oliver Bearman", "Haas", 0, 0, 5));
+        drivers.add(new Driver("Esteban Ocon", "Haas", 1, 0, 14));
+        drivers.add(new Driver("Oliver Bearman", "Haas", 0, 0, 6));
         drivers.add(new Driver("Liam Lawson", "Racing Bulls", 0, 0, 0));
         drivers.add(new Driver("Isack Hadjar", "Racing Bulls", 0, 0, 4));
         drivers.add(new Driver("Nico Hülkenberg", "Sauber", 0, 1, 6));
         drivers.add(new Driver("Gabriel Bortoleto", "Sauber", 0, 0, 0));
+
+
+        drivers.sort((d1, d2) -> Integer.compare(d2.getPoints(), d1.getPoints()));
+
         return drivers;
     }
 }

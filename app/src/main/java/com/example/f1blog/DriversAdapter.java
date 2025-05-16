@@ -45,6 +45,12 @@ public class DriversAdapter extends RecyclerView.Adapter<DriversAdapter.DriverVi
         } else {
             Log.e(TAG, "colorBar is null");
         }
+        // Helyezés beállítása
+        if (holder.positionTextView != null) {
+            holder.positionTextView.setText(String.valueOf(position + 1));
+        } else {
+            Log.e(TAG, "positionTextView is null");
+        }
 
         holder.itemView.setOnClickListener(v -> {
             Intent intent = new Intent(holder.itemView.getContext(), DriverDetailsActivity.class);
@@ -63,14 +69,15 @@ public class DriversAdapter extends RecyclerView.Adapter<DriversAdapter.DriverVi
     }
 
     static class DriverViewHolder extends RecyclerView.ViewHolder {
-        TextView nameTextView, teamTextView;
+        TextView nameTextView, teamTextView, positionTextView;
         View colorBar;
 
         public DriverViewHolder(@NonNull View itemView) {
             super(itemView);
             nameTextView = itemView.findViewById(R.id.textViewDriverName);
-            teamTextView = itemView.findViewById(R.id.textViewTeam);
+            teamTextView = itemView.findViewById(R.id.textViewTeam); // Javítva findById-ról findViewById-ra
             colorBar = itemView.findViewById(R.id.teamColorBar);
+            positionTextView = itemView.findViewById(R.id.textViewPosition);
             if (nameTextView == null) {
                 Log.e(TAG, "textViewDriverName not found in item_driver.xml");
             }
@@ -79,6 +86,9 @@ public class DriversAdapter extends RecyclerView.Adapter<DriversAdapter.DriverVi
             }
             if (colorBar == null) {
                 Log.e(TAG, "teamColorBar not found in item_driver.xml");
+            }
+            if (positionTextView == null) {
+                Log.e(TAG, "textViewPosition not found in item_driver.xml");
             }
         }
     }

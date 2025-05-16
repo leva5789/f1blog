@@ -44,14 +44,19 @@ public class RegisterActivity extends AppCompatActivity {
             mAuth.createUserWithEmailAndPassword(email, password)
                     .addOnSuccessListener(authResult -> {
                         String uid = authResult.getUser().getUid();
-                        db.collection("users").document(uid).set(new User(username, email))
+                        User user = new User(username, email);
+                        db.collection("users").document(uid).set(user)
                                 .addOnSuccessListener(aVoid -> {
                                     Toast.makeText(this, "Sikeres regisztráció!", Toast.LENGTH_SHORT).show();
-                                    startActivity(new Intent(RegisterActivity.this, MainActivity.class));
+                                    Intent intent = new Intent(RegisterActivity.this, MainActivity.class);
+                                    intent.putExtra("username", username); // Felhasználónév átadása
+                                    startActivity(intent);
                                     finish();
                                 })
                                 .addOnFailureListener(e -> {
                                     Toast.makeText(this, "Hiba az adatok mentése közben: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                                    // Töröljük a Firebase Auth felhasználót, ha a Firestore mentés sikertelen
+                                    mAuth.getCurrentUser().delete();
                                 });
                     })
                     .addOnFailureListener(e -> {
@@ -63,31 +68,5 @@ public class RegisterActivity extends AppCompatActivity {
             startActivity(new Intent(RegisterActivity.this, LoginActivity.class));
             finish();
         });
-    }
-
-    private static class User {
-        private String username;
-        private String email;
-
-        public User(String username, String email) {
-            this.username = username;
-            this.email = email;
-        }
-
-        public String getUsername() {
-            return username;
-        }
-
-        public void setUsername(String username) {
-            this.username = username;
-        }
-
-        public String getEmail() {
-            return email;
-        }
-
-        public void setEmail(String email) {
-            this.email = email;
-        }
     }
 }
