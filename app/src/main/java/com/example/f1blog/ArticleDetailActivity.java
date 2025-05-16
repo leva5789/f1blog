@@ -14,6 +14,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
@@ -33,7 +34,8 @@ public class ArticleDetailActivity extends AppCompatActivity {
     private FirebaseFirestore db;
     private List<Comment> commentList;
     private CommentAdapter commentAdapter;
-    private String articleId; // Egyszerűsítésként a title-t használjuk ID-ként
+    private String articleId;
+    private String currentUsername; // Bejelentkezett felhasználó neve
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -58,7 +60,6 @@ public class ArticleDetailActivity extends AppCompatActivity {
 
         textViewArticleTitle.setText(title);
         textViewArticleContent.setText(content);
-        // imageViewArticle.setImageResource(R.drawable.placeholder_image); // Később API-ból
 
         // Kommentek listája
         commentList = new ArrayList<>();
@@ -66,7 +67,25 @@ public class ArticleDetailActivity extends AppCompatActivity {
         recyclerViewComments.setLayoutManager(new LinearLayoutManager(this));
         recyclerViewComments.setAdapter(commentAdapter);
 
-        loadComments();
+        // Felhasználónév lekérése a users collection-ból
+        if (mAuth.getCurrentUser() != null) {
+            String uid = mAuth.getCurrentUser().getUid();
+            db.collection("users").document(uid).get()
+                    .addOnSuccessListener(documentSnapshot -> {
+                        if (documentSnapshot.exists()) {
+                            currentUsername = documentSnapshot.getString("username");
+                            loadComments(); // Kommentek betöltése, miután megvan a username
+                        } else {
+                            Toast.makeText(this, "Felhasználó nem található!", Toast.LENGTH_SHORT).show();
+                        }
+                    })
+                    .addOnFailureListener(e -> {
+                        Toast.makeText(this, "Hiba a felhasználó lekérése közben: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                    });
+        } else {
+            Toast.makeText(this, "Kérlek, jelentkezz be!", Toast.LENGTH_SHORT).show();
+            finish();
+        }
 
         // Komment hozzáadása
         buttonAddComment.setOnClickListener(v -> {
@@ -75,12 +94,11 @@ public class ArticleDetailActivity extends AppCompatActivity {
                 Toast.makeText(this, "Kérlek, írj kommentet!", Toast.LENGTH_SHORT).show();
                 return;
             }
-            if (mAuth.getCurrentUser() != null) {
-                String username = mAuth.getCurrentUser().getEmail().split("@")[0]; // Egyszerűsítés
-                addComment(commentText, username);
+            if (currentUsername != null) {
+                addComment(commentText, currentUsername);
                 editTextComment.setText("");
             } else {
-                Toast.makeText(this, "Kérlek, jelentkezz be!", Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, "Felhasználónév nem található!", Toast.LENGTH_SHORT).show();
             }
         });
     }
@@ -116,7 +134,7 @@ public class ArticleDetailActivity extends AppCompatActivity {
         db.collection("comments").document(articleId).collection("comments")
                 .add(comment)
                 .addOnSuccessListener(documentReference -> {
-                    loadComments(); // Frissítjük a listát
+                    loadComments();
                     Toast.makeText(this, "Komment hozzáadva!", Toast.LENGTH_SHORT).show();
                 })
                 .addOnFailureListener(e -> {
@@ -125,14 +143,13 @@ public class ArticleDetailActivity extends AppCompatActivity {
     }
 
     public void deleteComment(String commentId) {
-        if (mAuth.getCurrentUser() != null) {
-            String currentUserEmail = mAuth.getCurrentUser().getEmail().split("@")[0];
+        if (mAuth.getCurrentUser() != null && currentUsername != null) {
             db.collection("comments").document(articleId).collection("comments").document(commentId)
                     .get()
                     .addOnSuccessListener(documentSnapshot -> {
                         if (documentSnapshot.exists()) {
                             String commentUsername = documentSnapshot.getString("username");
-                            if (currentUserEmail.equals(commentUsername)) {
+                            if (currentUsername.equals(commentUsername)) {
                                 db.collection("comments").document(articleId).collection("comments").document(commentId)
                                         .delete()
                                         .addOnSuccessListener(aVoid -> {
@@ -151,14 +168,13 @@ public class ArticleDetailActivity extends AppCompatActivity {
     }
 
     public void editComment(String commentId, String newText) {
-        if (mAuth.getCurrentUser() != null) {
-            String currentUserEmail = mAuth.getCurrentUser().getEmail().split("@")[0];
+        if (mAuth.getCurrentUser() != null && currentUsername != null) {
             db.collection("comments").document(articleId).collection("comments").document(commentId)
                     .get()
                     .addOnSuccessListener(documentSnapshot -> {
                         if (documentSnapshot.exists()) {
                             String commentUsername = documentSnapshot.getString("username");
-                            if (currentUserEmail.equals(commentUsername)) {
+                            if (currentUsername.equals(commentUsername)) {
                                 Map<String, Object> updates = new HashMap<>();
                                 updates.put("text", newText);
                                 db.collection("comments").document(articleId).collection("comments").document(commentId)
@@ -176,5 +192,9 @@ public class ArticleDetailActivity extends AppCompatActivity {
                         }
                     });
         }
+    }
+
+    public String getCurrentUsername() {
+        return currentUsername;
     }
 }

@@ -1,10 +1,12 @@
 package com.example.f1blog;
 
+import android.app.AlertDialog;
 import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
+import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
@@ -34,14 +36,30 @@ public class CommentAdapter extends RecyclerView.Adapter<CommentAdapter.CommentV
         holder.textViewComment.setText(comment.getText());
         holder.textViewUsername.setText(comment.getUsername());
 
-        holder.buttonDelete.setOnClickListener(v -> {
+        holder.imageViewDelete.setOnClickListener(v -> {
             activity.deleteComment(comment.getId());
         });
 
-        holder.buttonEdit.setOnClickListener(v -> {
-            // Egyszerűsített szerkesztés: felugró ablak helyett itt csak a szöveg szerkesztése
-            String newText = "Új szöveg"; // Helyettesítsd egy EditText-tel később
-            activity.editComment(comment.getId(), newText);
+        holder.imageViewEdit.setOnClickListener(v -> {
+            // Felugró ablak a szerkesztéshez
+            AlertDialog.Builder builder = new AlertDialog.Builder(context);
+            builder.setTitle("Komment szerkesztése");
+
+            final EditText input = new EditText(context);
+            input.setText(comment.getText());
+            builder.setView(input);
+
+            builder.setPositiveButton("Mentés", (dialog, which) -> {
+                String newText = input.getText().toString().trim();
+                if (!newText.isEmpty()) {
+                    activity.editComment(comment.getId(), newText);
+                } else {
+                    activity.editComment(comment.getId(), comment.getText()); // Visszaállítjuk, ha üres
+                }
+            });
+            builder.setNegativeButton("Mégse", (dialog, which) -> dialog.cancel());
+
+            builder.show();
         });
     }
 
@@ -52,14 +70,14 @@ public class CommentAdapter extends RecyclerView.Adapter<CommentAdapter.CommentV
 
     static class CommentViewHolder extends RecyclerView.ViewHolder {
         TextView textViewComment, textViewUsername;
-        Button buttonDelete, buttonEdit;
+        ImageView imageViewDelete, imageViewEdit;
 
         public CommentViewHolder(@NonNull View itemView) {
             super(itemView);
             textViewComment = itemView.findViewById(R.id.textViewComment);
             textViewUsername = itemView.findViewById(R.id.textViewUsername);
-            buttonDelete = itemView.findViewById(R.id.buttonDelete);
-            buttonEdit = itemView.findViewById(R.id.buttonEdit);
+            imageViewDelete = itemView.findViewById(R.id.imageViewDelete);
+            imageViewEdit = itemView.findViewById(R.id.imageViewEdit);
         }
     }
 }
