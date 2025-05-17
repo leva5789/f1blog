@@ -43,18 +43,20 @@
                 android:id="@+id/imageViewEdit"
                 android:layout_width="24dp"
                 android:layout_height="24dp"
-                android:src="@android:drawable/ic_menu_edit"
+                android:src="@drawable/ic_menu_edit"
                 android:contentDescription="Edit comment"
-                app:tint="@color/white" />
+                android:tint="@color/white"
+                android:visibility="gone" />
 
             <ImageView
                 android:id="@+id/imageViewDelete"
                 android:layout_width="24dp"
                 android:layout_height="24dp"
                 android:layout_marginStart="16dp"
-                android:src="@android:drawable/ic_menu_delete"
+                android:src="@drawable/ic_menu_delete"
                 android:contentDescription="Delete comment"
-                app:tint="@color/white" />
+                android:tint="@color/white"
+                android:visibility="gone" />
 
         </LinearLayout>
 

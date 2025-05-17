@@ -6,6 +6,15 @@
     android:padding="16dp"
     android:background="@color/black_background">
 
+    <!-- Vissza ikon -->
+    <ImageView
+        android:id="@+id/imageViewBack"
+        android:layout_width="24dp"
+        android:layout_height="24dp"
+        android:src="@drawable/ic_back_arrow"
+        android:contentDescription="Back"
+        android:layout_marginBottom="8dp" />
+
     <ImageView
         android:id="@+id/imageViewArticle"
         android:layout_width="match_parent"
@@ -55,13 +64,13 @@
             android:textColor="@color/white"
             android:textColorHint="@color/gray" />
 
-        <Button
-            android:id="@+id/buttonAddComment"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Hozzáad"
-            android:textColor="@color/white"
-            android:background="@color/race_red" />
+        <ImageView
+            android:id="@+id/imageViewAddComment"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:src="@drawable/ic_send_message"
+            android:contentDescription="Add comment"
+            android:layout_gravity="center_vertical" />
 
     </LinearLayout>
 

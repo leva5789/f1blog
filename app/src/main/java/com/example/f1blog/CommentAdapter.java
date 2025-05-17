@@ -5,6 +5,8 @@ import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -36,31 +38,45 @@ public class CommentAdapter extends RecyclerView.Adapter<CommentAdapter.CommentV
         holder.textViewComment.setText(comment.getText());
         holder.textViewUsername.setText(comment.getUsername());
 
-        holder.imageViewDelete.setOnClickListener(v -> {
-            activity.deleteComment(comment.getId());
-        });
+        // Animáció alkalmazása, ha ez az első elem (új komment)
+        if (position == 0) {
+            Animation slideInTop = AnimationUtils.loadAnimation(context, R.anim.slide_in_top);
+            holder.itemView.startAnimation(slideInTop);
+        }
 
-        holder.imageViewEdit.setOnClickListener(v -> {
-            // Felugró ablak a szerkesztéshez
-            AlertDialog.Builder builder = new AlertDialog.Builder(context);
-            builder.setTitle("Komment szerkesztése");
+        String currentUsername = activity.getCurrentUsername();
+        if (currentUsername != null && currentUsername.equals(comment.getUsername())) {
+            holder.imageViewEdit.setVisibility(View.VISIBLE);
+            holder.imageViewDelete.setVisibility(View.VISIBLE);
 
-            final EditText input = new EditText(context);
-            input.setText(comment.getText());
-            builder.setView(input);
-
-            builder.setPositiveButton("Mentés", (dialog, which) -> {
-                String newText = input.getText().toString().trim();
-                if (!newText.isEmpty()) {
-                    activity.editComment(comment.getId(), newText);
-                } else {
-                    activity.editComment(comment.getId(), comment.getText()); // Visszaállítjuk, ha üres
-                }
+            holder.imageViewDelete.setOnClickListener(v -> {
+                activity.deleteComment(comment.getId());
             });
-            builder.setNegativeButton("Mégse", (dialog, which) -> dialog.cancel());
 
-            builder.show();
-        });
+            holder.imageViewEdit.setOnClickListener(v -> {
+                AlertDialog.Builder builder = new AlertDialog.Builder(context);
+                builder.setTitle("Komment szerkesztése");
+
+                final EditText input = new EditText(context);
+                input.setText(comment.getText());
+                builder.setView(input);
+
+                builder.setPositiveButton("Mentés", (dialog, which) -> {
+                    String newText = input.getText().toString().trim();
+                    if (!newText.isEmpty()) {
+                        activity.editComment(comment.getId(), newText);
+                    } else {
+                        activity.editComment(comment.getId(), comment.getText());
+                    }
+                });
+                builder.setNegativeButton("Mégse", (dialog, which) -> dialog.cancel());
+
+                builder.show();
+            });
+        } else {
+            holder.imageViewEdit.setVisibility(View.GONE);
+            holder.imageViewDelete.setVisibility(View.GONE);
+        }
     }
 
     @Override

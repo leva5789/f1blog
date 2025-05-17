@@ -2,11 +2,9 @@ package com.example.f1blog;
 
 import android.os.Bundle;
 import android.view.View;
-import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -16,6 +14,7 @@ import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 import java.util.ArrayList;
@@ -25,17 +24,16 @@ import java.util.Map;
 
 public class ArticleDetailActivity extends AppCompatActivity {
 
-    private ImageView imageViewArticle;
+    private ImageView imageViewArticle, imageViewBack, imageViewAddComment;
     private TextView textViewArticleTitle, textViewArticleContent;
     private RecyclerView recyclerViewComments;
     private EditText editTextComment;
-    private Button buttonAddComment;
     private FirebaseAuth mAuth;
     private FirebaseFirestore db;
     private List<Comment> commentList;
     private CommentAdapter commentAdapter;
     private String articleId;
-    private String currentUsername; // Bejelentkezett felhasználó neve
+    private String currentUsername;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -46,65 +44,57 @@ public class ArticleDetailActivity extends AppCompatActivity {
         db = FirebaseFirestore.getInstance();
 
         imageViewArticle = findViewById(R.id.imageViewArticle);
+        imageViewBack = findViewById(R.id.imageViewBack);
+        imageViewAddComment = findViewById(R.id.imageViewAddComment);
         textViewArticleTitle = findViewById(R.id.textViewArticleTitle);
         textViewArticleContent = findViewById(R.id.textViewArticleContent);
         recyclerViewComments = findViewById(R.id.recyclerViewComments);
         editTextComment = findViewById(R.id.editTextComment);
-        buttonAddComment = findViewById(R.id.buttonAddComment);
 
-        // Cikk adatok betöltése
+        imageViewBack.setOnClickListener(v -> onBackPressed());
+
         String title = getIntent().getStringExtra("articleTitle");
         String content = getIntent().getStringExtra("articleContent");
         String image = getIntent().getStringExtra("articleImage");
-        articleId = title; // Egyszerűsítés, később valódi ID-t használunk
+        articleId = title;
 
         textViewArticleTitle.setText(title);
         textViewArticleContent.setText(content);
 
-        // Kommentek listája
         commentList = new ArrayList<>();
         commentAdapter = new CommentAdapter(commentList, this);
         recyclerViewComments.setLayoutManager(new LinearLayoutManager(this));
         recyclerViewComments.setAdapter(commentAdapter);
 
-        // Felhasználónév lekérése a users collection-ból
         if (mAuth.getCurrentUser() != null) {
             String uid = mAuth.getCurrentUser().getUid();
             db.collection("users").document(uid).get()
                     .addOnSuccessListener(documentSnapshot -> {
                         if (documentSnapshot.exists()) {
                             currentUsername = documentSnapshot.getString("username");
-                            loadComments(); // Kommentek betöltése, miután megvan a username
-                        } else {
-                            Toast.makeText(this, "Felhasználó nem található!", Toast.LENGTH_SHORT).show();
+                            loadComments();
                         }
                     })
-                    .addOnFailureListener(e -> {
-                        Toast.makeText(this, "Hiba a felhasználó lekérése közben: " + e.getMessage(), Toast.LENGTH_SHORT).show();
-                    });
+                    .addOnFailureListener(e -> {});
         } else {
-            Toast.makeText(this, "Kérlek, jelentkezz be!", Toast.LENGTH_SHORT).show();
             finish();
         }
 
-        // Komment hozzáadása
-        buttonAddComment.setOnClickListener(v -> {
+        imageViewAddComment.setOnClickListener(v -> {
             String commentText = editTextComment.getText().toString().trim();
             if (commentText.isEmpty()) {
-                Toast.makeText(this, "Kérlek, írj kommentet!", Toast.LENGTH_SHORT).show();
                 return;
             }
             if (currentUsername != null) {
                 addComment(commentText, currentUsername);
                 editTextComment.setText("");
-            } else {
-                Toast.makeText(this, "Felhasználónév nem található!", Toast.LENGTH_SHORT).show();
             }
         });
     }
 
     private void loadComments() {
         db.collection("comments").document(articleId).collection("comments")
+                .orderBy("timestamp", Query.Direction.DESCENDING) // Kommentek rendezése timestamp szerint, legutóbbi legfelül
                 .get()
                 .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
                     @Override
@@ -118,8 +108,6 @@ public class ArticleDetailActivity extends AppCompatActivity {
                                 commentList.add(new Comment(id, text, username));
                             }
                             commentAdapter.notifyDataSetChanged();
-                        } else {
-                            Toast.makeText(ArticleDetailActivity.this, "Hiba a kommentek betöltésekor: " + task.getException().getMessage(), Toast.LENGTH_SHORT).show();
                         }
                     }
                 });
@@ -135,11 +123,8 @@ public class ArticleDetailActivity extends AppCompatActivity {
                 .add(comment)
                 .addOnSuccessListener(documentReference -> {
                     loadComments();
-                    Toast.makeText(this, "Komment hozzáadva!", Toast.LENGTH_SHORT).show();
                 })
-                .addOnFailureListener(e -> {
-                    Toast.makeText(this, "Hiba a komment hozzáadása közben: " + e.getMessage(), Toast.LENGTH_SHORT).show();
-                });
+                .addOnFailureListener(e -> {});
     }
 
     public void deleteComment(String commentId) {
@@ -154,13 +139,8 @@ public class ArticleDetailActivity extends AppCompatActivity {
                                         .delete()
                                         .addOnSuccessListener(aVoid -> {
                                             loadComments();
-                                            Toast.makeText(this, "Komment törölve!", Toast.LENGTH_SHORT).show();
                                         })
-                                        .addOnFailureListener(e -> {
-                                            Toast.makeText(this, "Hiba a törlés közben: " + e.getMessage(), Toast.LENGTH_SHORT).show();
-                                        });
-                            } else {
-                                Toast.makeText(this, "Csak a saját kommentedet törölheted!", Toast.LENGTH_SHORT).show();
+                                        .addOnFailureListener(e -> {});
                             }
                         }
                     });
@@ -181,13 +161,8 @@ public class ArticleDetailActivity extends AppCompatActivity {
                                         .update(updates)
                                         .addOnSuccessListener(aVoid -> {
                                             loadComments();
-                                            Toast.makeText(this, "Komment szerkesztve!", Toast.LENGTH_SHORT).show();
                                         })
-                                        .addOnFailureListener(e -> {
-                                            Toast.makeText(this, "Hiba a szerkesztés közben: " + e.getMessage(), Toast.LENGTH_SHORT).show();
-                                        });
-                            } else {
-                                Toast.makeText(this, "Csak a saját kommentedet szerkesztheted!", Toast.LENGTH_SHORT).show();
+                                        .addOnFailureListener(e -> {});
                             }
                         }
                     });
@@ -196,5 +171,14 @@ public class ArticleDetailActivity extends AppCompatActivity {
 
     public String getCurrentUsername() {
         return currentUsername;
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        // Valós idejű frissítés: a kommentek újratöltése, amikor az activity láthatóvá válik
+        if (currentUsername != null) {
+            loadComments();
+        }
     }
 }
