@@ -81,11 +81,13 @@ public class MainActivity extends AppCompatActivity {
         fragments.add(new DriversFragment());
         fragments.add(new TeamsFragment());
         fragments.add(new NewsFragment());
+        fragments.add(new CircuitsFragment()); // Új fül hozzáadása
 
         List<String> tabTitles = new ArrayList<>();
         tabTitles.add("Pilóták");
         tabTitles.add("Csapatok");
         tabTitles.add("Hírek");
+        tabTitles.add("Pályák"); // Új fül címe
 
         ViewPagerAdapter adapter = new ViewPagerAdapter(this, fragments);
         viewPager.setAdapter(adapter);
