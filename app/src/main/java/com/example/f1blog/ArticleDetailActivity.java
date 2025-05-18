@@ -53,13 +53,17 @@ public class ArticleDetailActivity extends AppCompatActivity {
 
         imageViewBack.setOnClickListener(v -> onBackPressed());
 
+        // Intent adatok kinyerése
         String title = getIntent().getStringExtra("articleTitle");
         String content = getIntent().getStringExtra("articleContent");
-        String image = getIntent().getStringExtra("articleImage");
-        articleId = title;
+        int imageResId = getIntent().getIntExtra("articleImageResId", R.drawable.placeholder_image); // Alapértelmezett placeholder, ha nincs kép
 
+        // Adatok beállítása
         textViewArticleTitle.setText(title);
         textViewArticleContent.setText(content);
+        imageViewArticle.setImageResource(imageResId); // Kép beállítása a drawable erőforrás alapján
+
+        articleId = title; // Egyszerűsített articleId, később lehetne egyedi azonosító
 
         commentList = new ArrayList<>();
         commentAdapter = new CommentAdapter(commentList, this);
@@ -94,7 +98,7 @@ public class ArticleDetailActivity extends AppCompatActivity {
 
     private void loadComments() {
         db.collection("comments").document(articleId).collection("comments")
-                .orderBy("timestamp", Query.Direction.DESCENDING) // Kommentek rendezése timestamp szerint, legutóbbi legfelül
+                .orderBy("timestamp", Query.Direction.DESCENDING)
                 .get()
                 .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
                     @Override
@@ -176,7 +180,6 @@ public class ArticleDetailActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        // Valós idejű frissítés: a kommentek újratöltése, amikor az activity láthatóvá válik
         if (currentUsername != null) {
             loadComments();
         }

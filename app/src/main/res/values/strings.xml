@@ -1,3 +1,10 @@
 <resources>
-    <string name="app_name">f1blog</string>
+    <string name="app_name">F1Blog</string>
+
+    <!-- Szűrési opciók -->
+    <string-array name="filter_options">
+        <item>Pontok</item>
+        <item>Futamgyőzelmek</item>
+        <item>Pole pozíciók</item>
+    </string-array>
 </resources>

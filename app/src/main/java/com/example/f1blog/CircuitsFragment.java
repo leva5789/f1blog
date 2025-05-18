@@ -177,7 +177,7 @@ public class CircuitsFragment extends Fragment {
     private void sendTestNotification() {
         NotificationCompat.Builder builder = new NotificationCompat.Builder(requireContext(), CHANNEL_ID)
                 .setSmallIcon(R.drawable.ic_notification)
-                .setContentTitle("Teszt Értesítés")
+                .setContentTitle("F1")
                 .setContentText("TESZT ÉRTESÍTÉS")
                 .setPriority(NotificationCompat.PRIORITY_DEFAULT);
 

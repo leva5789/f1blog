@@ -30,17 +30,17 @@ public class DriversAdapter extends RecyclerView.Adapter<DriversAdapter.DriverVi
     public void onBindViewHolder(@NonNull DriverViewHolder holder, int position) {
         Driver driver = drivers.get(position);
         if (holder.nameTextView != null) {
-            holder.nameTextView.setText(driver.getName());
+            holder.nameTextView.setText(driver.getName() != null ? driver.getName() : "N/A");
         } else {
             Log.e(TAG, "nameTextView is null");
         }
         if (holder.teamTextView != null) {
-            holder.teamTextView.setText(driver.getTeam());
+            holder.teamTextView.setText(driver.getTeam() != null ? driver.getTeam() : "N/A");
         } else {
             Log.e(TAG, "teamTextView is null");
         }
         if (holder.colorBar != null) {
-            int colorRes = TeamColorUtils.getTeamColor(driver.getTeam());
+            int colorRes = TeamColorUtils.getTeamColor(driver.getTeam() != null ? driver.getTeam() : "");
             holder.colorBar.setBackgroundColor(ContextCompat.getColor(holder.itemView.getContext(), colorRes));
         } else {
             Log.e(TAG, "colorBar is null");
@@ -54,8 +54,8 @@ public class DriversAdapter extends RecyclerView.Adapter<DriversAdapter.DriverVi
 
         holder.itemView.setOnClickListener(v -> {
             Intent intent = new Intent(holder.itemView.getContext(), DriverDetailsActivity.class);
-            intent.putExtra("driverName", driver.getName());
-            intent.putExtra("team", driver.getTeam());
+            intent.putExtra("driverName", driver.getName() != null ? driver.getName() : "N/A");
+            intent.putExtra("team", driver.getTeam() != null ? driver.getTeam() : "N/A");
             intent.putExtra("wins", driver.getWins());
             intent.putExtra("poles", driver.getPoles());
             intent.putExtra("points", driver.getPoints());
@@ -75,7 +75,7 @@ public class DriversAdapter extends RecyclerView.Adapter<DriversAdapter.DriverVi
         public DriverViewHolder(@NonNull View itemView) {
             super(itemView);
             nameTextView = itemView.findViewById(R.id.textViewDriverName);
-            teamTextView = itemView.findViewById(R.id.textViewTeam); // Javítva findById-ról findViewById-ra
+            teamTextView = itemView.findViewById(R.id.textViewTeam);
             colorBar = itemView.findViewById(R.id.teamColorBar);
             positionTextView = itemView.findViewById(R.id.textViewPosition);
             if (nameTextView == null) {

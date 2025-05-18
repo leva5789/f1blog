@@ -28,14 +28,14 @@ public class NewsAdapter extends RecyclerView.Adapter<NewsAdapter.NewsViewHolder
     public void onBindViewHolder(@NonNull NewsViewHolder holder, int position) {
         News news = newsList.get(position);
         holder.textViewTitle.setText(news.getTitle());
-        // Placeholder kép, később API-ból töltve
-        // holder.imageViewNews.setImageResource(R.drawable.placeholder_image);
+        // Kép beállítása a drawable erőforrás alapján
+        holder.imageViewNews.setImageResource(news.getImageResId());
 
         holder.itemView.setOnClickListener(v -> {
             Intent intent = new Intent(holder.itemView.getContext(), ArticleDetailActivity.class);
             intent.putExtra("articleTitle", news.getTitle());
-            intent.putExtra("articleContent", news.getDescription()); // Feltételezem, hogy a description a teljes tartalom
-            intent.putExtra("articleImage", "placeholder_image"); // Placeholder, később URL
+            intent.putExtra("articleContent", news.getDescription());
+            intent.putExtra("articleImageResId", news.getImageResId()); // Drawable erőforrás ID átadása
             holder.itemView.getContext().startActivity(intent);
         });
     }
